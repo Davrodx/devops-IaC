@@ -27,7 +27,7 @@ stages:
                   --template-file infra/main.bicep \
                   --parameters namePrefix=$(namePrefix) \
                                tenantId=$(az account show --query tenantId -o tsv) \
-                               objectId=$(az ad signed-in-user show --query objectId -o tsv)
+                               objectId='8cc342d9-1d50-4a28-abd9-25ef76d9d4d4'
 
   - stage: BuildAndDeployApp
     displayName: 'Build and Deploy Node.js App'
