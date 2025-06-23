@@ -1,6 +1,7 @@
 param location string = resourceGroup().location
 param namePrefix string = 'demo'
 param tenantId string
+param objectId string
 
 module kv 'modules/keyvault.bicep' = {
   name: 'kvDeployment'
