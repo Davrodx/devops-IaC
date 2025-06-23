@@ -1,7 +1,6 @@
 trigger:
-  branches:
-    include:
-      - main
+  none
+
 
 variables:
   azureSubscription: 'ARM-Manager'
