@@ -8,6 +8,7 @@ module kv 'modules/keyvault.bicep' = {
     namePrefix: namePrefix
     location: location
     tenantId: tenantId
+    objectId: objectId
   }
 }
 
