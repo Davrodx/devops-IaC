@@ -1,19 +1,58 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- main
+  branches:
+    include:
+      - main
 
-pool:
-  vmImage: ubuntu-latest
+variables:
+  azureSubscription: 'ARM-Manager'
+  resourceGroupName: 'CareerPortfolio'
+  location: 'East US'
+  namePrefix: 'demo'
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+stages:
+  - stage: DeployInfra
+    displayName: 'Deploy Infrastructure with Bicep'
+    jobs:
+      - job: BicepDeployment
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: $(azureSubscription)
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                az deployment group create \
+                  --resource-group $(resourceGroupName) \
+                  --template-file infra/main.bicep \
+                  --parameters namePrefix=$(namePrefix) \
+                               tenantId=$(az account show --query tenantId -o tsv) \
+                               objectId=$(az ad signed-in-user show --query objectId -o tsv)
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+  - stage: BuildAndDeployApp
+    displayName: 'Build and Deploy Node.js App'
+    dependsOn: DeployInfra
+    jobs:
+      - job: DeployApp
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '18.x'
+            displayName: 'Use Node.js 18'
+
+          - script: |
+              cd src/api
+              npm install
+              zip -r $(Build.ArtifactStagingDirectory)/app.zip .
+            displayName: 'Install & Zip API App'
+
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: $(azureSubscription)
+              appType: 'webApp'
+              appName: '$(namePrefix)-webapp'
+              package: '$(Build.ArtifactStagingDirectory)/app.zip'
+            displayName: 'Deploy to Azure Web App'
