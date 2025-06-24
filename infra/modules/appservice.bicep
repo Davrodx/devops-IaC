@@ -16,7 +16,9 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
 resource webApp 'Microsoft.Web/sites@2022-03-01' = {
   name: '${namePrefix}-webapp'
   location: location
+  kind: 'app'
   properties: {
+    httpsOnly: true
     serverFarmId: appServicePlan.id
     siteConfig: {
       appSettings: [
@@ -30,3 +32,4 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
 }
 
 output appServiceName string = webApp.name
+output webAppUrl string = 'https://${webApp.name}.azurewebsites.net'
