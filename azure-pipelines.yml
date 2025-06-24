@@ -46,7 +46,7 @@ stages:
                 Write-Host "🚀 Deploying ARM template..."
                 az deployment group create `
                   --resource-group "$(resourceGroupName)" `
-                  --template-file $outputPath `
+                  --template-file "$outputPath" `
                   --parameters "@$paramsPath" `
                   --debug
 
