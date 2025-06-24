@@ -7,7 +7,7 @@ pool:
 variables:
   azureSubscription: 'ARM-Manager'
   location: 'eastus'
-  namePrefix: 'PortfolioApp01'
+  namePrefix: 'CareerPortfolio'
   tenantId: 'ed4ea245-6155-4c12-a192-b87bc12e9cc5'
   objectId: '8cc342d9-1d50-4a28-abd9-25ef76d9d4d4'
 
@@ -23,7 +23,7 @@ stages:
         scriptLocation: inlineScript
         inlineScript: |
           az --version
-          az group create --name $(namePrefix)-rg --location $(location)
+          az group create --name CareerPortfolio --location $(location)
           az deployment group create \
             --resource-group $(namePrefix)-rg \
             --template-file infra/main.bicep \
