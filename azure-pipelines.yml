@@ -22,6 +22,13 @@ stages:
               scriptType: bash
               scriptLocation: inlineScript
               inlineScript: |
+                echo "🔐 Getting tenantId..."
+                tenantId=$(az account show --query tenantId -o tsv)
+                echo "✅ tenantId: $tenantId"
+
+                echo "🔐 Using objectId (manually set or secret): $objectId"
+
+                echo "🚀 Starting Bicep deployment..."
                 az deployment group create \
                   --resource-group $(resourceGroupName) \
                   --template-file infra/main.bicep \
