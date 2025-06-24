@@ -1,35 +1,27 @@
 param namePrefix string
 param location string
 
-resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
-  name: 'appserviceplan123'
+resource plan 'Microsoft.Web/serverfarms@2022-03-01' = {
+  name: 'WebAppPortfolio-appserviceplan'
   location: location
   sku: {
-    name: 'F1'
-    tier: 'Free'
+    name: 'B1'
+    tier: 'Basic'
   }
+  kind: 'linux'
   properties: {
-    reserved: false
+    reserved: true  // 👈 required for Linux
   }
 }
 
 resource webApp 'Microsoft.Web/sites@2022-03-01' = {
-  name: 'myappwebabc123'
+  name: 'WebAppPortfolio'
   location: location
-  kind: 'app'
+  kind: 'app,linux'
   properties: {
-    httpsOnly: true
-    serverFarmId: appServicePlan.id
+    serverFarmId: plan.id
     siteConfig: {
-      appSettings: [
-        {
-          name: 'WEBSITE_RUN_FROM_PACKAGE'
-          value: '1'
-        }
-      ]
+      linuxFxVersion: 'NODE|18-lts'  // 👈 use Linux Node runtime
     }
   }
 }
-
-output appServiceName string = webApp.name
-output webAppUrl string = 'https://${webApp.name}.azurewebsites.net'
