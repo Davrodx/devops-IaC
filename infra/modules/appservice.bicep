@@ -2,7 +2,7 @@ param namePrefix string
 param location string
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
-  name: '${namePrefix}-plan'
+  name: '${namePrefix}-web${uniqueString(resourceGroup().id)}'
   location: location
   sku: {
     name: 'F1'
