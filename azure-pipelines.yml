@@ -21,7 +21,7 @@ stages:
               scriptType: bash
               scriptLocation: inlineScript
               inlineScript: |
-                set -e  # Exit on error
+                set -e
                 echo "🔐 Getting tenantId..."
                 tenantId=$(az account show --query tenantId -o tsv)
                 objectId='8cc342d9-1d50-4a28-abd9-25ef76d9d4d4'
@@ -29,14 +29,13 @@ stages:
                 echo "✅ tenantId = $tenantId"
                 echo "✅ objectId = $objectId"
 
-                echo "🚀 Starting Bicep deployment with inline parameters..."
+                echo "🚀 Starting Bicep deployment with inline JSON parameters..."
                 az deployment group create \
                   --resource-group $(resourceGroupName) \
                   --template-file infra/main.bicep \
-                  --parameters namePrefix=$(namePrefix) \
-                               location="$(location)" \
-                               tenantId=$tenantId \
-                               objectId=$objectId
+                  --parameters "{\"namePrefix\": {\"value\": \"$(namePrefix)\"}, \"location\": {\"value\": \"$(location)\"}, \"tenantId\": {\"value\": \"$tenantId\"}, \"objectId\": {\"value\": \"$objectId\"}}" \
+                  --only-show-errors \
+                  --debug
 
   - stage: BuildAndDeployApp
     displayName: 'Build and Deploy Node.js App'
@@ -44,7 +43,7 @@ stages:
     jobs:
       - job: DeployApp
         pool:
-          vmImage: 'ubuntu-latest'
+          vmImage: 'windows-latest'
         steps:
           - task: NodeTool@0
             inputs:
@@ -54,7 +53,7 @@ stages:
           - script: |
               cd src/api
               npm install
-              zip -r $(Build.ArtifactStagingDirectory)/app.zip .
+              powershell Compress-Archive -Path * -DestinationPath $(Build.ArtifactStagingDirectory)\app.zip
             displayName: 'Install & Zip API App'
 
           - task: AzureWebApp@1
@@ -62,5 +61,5 @@ stages:
               azureSubscription: $(azureSubscription)
               appType: 'webApp'
               appName: '$(namePrefix)-webapp'
-              package: '$(Build.ArtifactStagingDirectory)/app.zip'
+              package: '$(Build.ArtifactStagingDirectory)\app.zip'
             displayName: 'Deploy to Azure Web App'
