@@ -21,6 +21,7 @@ stages:
               scriptType: bash
               scriptLocation: inlineScript
               inlineScript: |
+                set -e  # Exit on error
                 echo "🔐 Getting tenantId..."
                 tenantId=$(az account show --query tenantId -o tsv)
                 objectId='8cc342d9-1d50-4a28-abd9-25ef76d9d4d4'
@@ -28,11 +29,14 @@ stages:
                 echo "✅ tenantId = $tenantId"
                 echo "✅ objectId = $objectId"
 
-                echo "🚀 Starting Bicep deployment using .bicepparam file..."
+                echo "🚀 Starting Bicep deployment with inline parameters..."
                 az deployment group create \
                   --resource-group $(resourceGroupName) \
                   --template-file infra/main.bicep \
-                  --parameters @infra/main.bicepparam
+                  --parameters namePrefix=$(namePrefix) \
+                               location="$(location)" \
+                               tenantId=$tenantId \
+                               objectId=$objectId
 
   - stage: BuildAndDeployApp
     displayName: 'Build and Deploy Node.js App'
