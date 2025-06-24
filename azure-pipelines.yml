@@ -1,76 +1,31 @@
 trigger:
-  none
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
 
 variables:
   azureSubscription: 'ARM-Manager'
-  resourceGroupName: 'CareerPortfolio'
-  location: 'East US'
-  namePrefix: 'demo030303'
+  location: 'eastus'
+  namePrefix: 'PortfolioApp01'
+  tenantId: 'ed4ea245-6155-4c12-a192-b87bc12e9cc5'
+  objectId: '8cc342d9-1d50-4a28-abd9-25ef76d9d4d4'
 
 stages:
-  - stage: DeployInfra
-    displayName: 'Deploy Infrastructure with Bicep'
-    jobs:
-      - job: BicepDeployment
-        pool:
-          vmImage: 'windows-latest'
-        steps:
-          - task: AzureCLI@2
-            inputs:
-              azureSubscription: $(azureSubscription)
-              scriptType: ps
-              scriptLocation: inlineScript
-              inlineScript: |
-                Write-Host "🔐 Getting tenantId..."
-                $tenantId = az account show --query tenantId -o tsv
-                $objectId = '8cc342d9-1d50-4a28-abd9-25ef76d9d4d4'
-
-                Write-Host "✅ tenantId = $tenantId"
-                Write-Host "✅ objectId = $objectId"
-
-                Write-Host "🛠️ Building Bicep to ARM JSON..."
-                $bicepPath = "$(System.DefaultWorkingDirectory)\infra\main.bicep"
-                $outputPath = "$(System.DefaultWorkingDirectory)\infra\main.json"
-                az bicep build --file $bicepPath --outFile $outputPath
-
-                $params = @{
-                  namePrefix = @{ value = "$(namePrefix)" }
-                  location   = @{ value = "$(location)" }
-                  tenantId   = @{ value = "$tenantId" }
-                  objectId   = @{ value = "$objectId" }
-                }
-
-                $paramsPath = "$(System.DefaultWorkingDirectory)\bicep-params.json"
-                $params | ConvertTo-Json -Depth 3 | Out-File -FilePath $paramsPath -Encoding utf8
-
-                Write-Host "🚀 Deploying ARM template..."
-                $cmd = "az deployment group create --resource-group `"$env:resourceGroupName`" --template-file `"$outputPath`" --parameters `@$paramsPath` --debug"
-                Write-Host "Executing: $cmd"
-                Invoke-Expression $cmd
-
-  - stage: BuildAndDeployApp
-    displayName: 'Build and Deploy Node.js App'
-    dependsOn: DeployInfra
-    jobs:
-      - job: DeployApp
-        pool:
-          vmImage: 'windows-latest'
-        steps:
-          - task: NodeTool@0
-            inputs:
-              versionSpec: '18.x'
-            displayName: 'Use Node.js 18'
-
-          - script: |
-              cd src/api
-              npm install
-              powershell Compress-Archive -Path * -DestinationPath $(Build.ArtifactStagingDirectory)\app.zip
-            displayName: 'Install & Zip API App'
-
-          - task: AzureWebApp@1
-            inputs:
-              azureSubscription: $(azureSubscription)
-              appType: 'webApp'
-              appName: '$(namePrefix)-webapp'
-              package: '$(Build.ArtifactStagingDirectory)\app.zip'
-            displayName: 'Deploy to Azure Web App'
+- stage: DeployInfrastructure
+  jobs:
+  - job: Deploy
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: $(azureSubscription)
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          az --version
+          az group create --name $(namePrefix)-rg --location $(location)
+          az deployment group create \
+            --resource-group $(namePrefix)-rg \
+            --template-file infra/main.bicep \
+            --parameters namePrefix=$(namePrefix) location=$(location) tenantId=$(tenantId) objectId=$(objectId)
+      displayName: 'Deploy Bicep Infrastructure'
