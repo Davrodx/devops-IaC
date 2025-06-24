@@ -22,6 +22,11 @@ stages:
               scriptLocation: inlineScript
               inlineScript: |
                 set -e
+
+                echo "🔄 Installing latest Azure CLI and Bicep CLI..."
+                curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+                az bicep upgrade
+
                 echo "🔐 Getting tenantId..."
                 tenantId=$(az account show --query tenantId -o tsv)
                 objectId='8cc342d9-1d50-4a28-abd9-25ef76d9d4d4'
