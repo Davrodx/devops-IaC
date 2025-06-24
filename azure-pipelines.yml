@@ -13,7 +13,7 @@ stages:
     jobs:
       - job: BicepDeployment
         pool:
-          vmImage: 'ubuntu-latest'
+          vmImage: 'windows-latest'
         steps:
           - task: AzureCLI@2
             inputs:
