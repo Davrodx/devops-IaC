@@ -1,7 +1,7 @@
 param namePrefix string
 param location string
 param tenantId string
-param objectId string // This will be the objectId of a user, service principal, or managed identity
+param objectId string
 
 resource kv 'Microsoft.KeyVault/vaults@2022-11-01' = {
   name: '${namePrefix}-kv'
