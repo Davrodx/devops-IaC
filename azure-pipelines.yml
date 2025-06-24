@@ -23,9 +23,9 @@ stages:
         scriptType: bash
         scriptLocation: inlineScript
         inlineScript: |
-          echo "Starting Bicep deployment to existing resource group 'CareerPortfolio'..."
+          echo "Starting Bicep deployment to existing resource group 'PortfolioDev'..."
           az deployment group create \
-            --resource-group CareerPortfolio \
+            --resource-group PortfolioDev \
             --template-file infra/main.bicep \
             --parameters namePrefix=$(namePrefix) location=$(location) tenantId=$(tenantId) objectId=$(objectId)
           exit_code=$?
