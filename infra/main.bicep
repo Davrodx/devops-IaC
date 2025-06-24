@@ -1,6 +1,15 @@
-param location string = resourceGroup().location
-param namePrefix string = 'demo030303' // Use something unique
+// main.bicep
+
+@description('Azure region for resource deployment')
+param location string
+
+@description('Prefix for naming resources')
+param namePrefix string
+
+@description('Azure Active Directory tenant ID')
 param tenantId string
+
+@description('Object ID for access policies (e.g., service principal or user)')
 param objectId string
 
 module kv 'modules/keyvault.bicep' = {
