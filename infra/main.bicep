@@ -1,12 +1,12 @@
 param location string = resourceGroup().location
-param namePrefix string = 'demo'
+param namePrefix string = 'demo20250623' // Use something unique
 param tenantId string
 param objectId string
 
 module kv 'modules/keyvault.bicep' = {
   name: 'kvDeployment'
   params: {
-    param namePrefix string = 'demo${uniqueString(resourceGroup().id)}
+    namePrefix: namePrefix
     location: location
     tenantId: tenantId
     objectId: objectId
