@@ -21,23 +21,28 @@ stages:
               scriptType: ps
               scriptLocation: inlineScript
               inlineScript: |
-                Write-Host "🔄 Installing latest Azure CLI and Bicep CLI..."
-                Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi
-                Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /quiet'
-                az bicep upgrade
-
-                Write-Host "🔐 Getting tenantId..."
+                Write-Host "Getting tenantId..."
                 $tenantId = az account show --query tenantId -o tsv
                 $objectId = '8cc342d9-1d50-4a28-abd9-25ef76d9d4d4'
 
-                Write-Host "✅ tenantId = $tenantId"
-                Write-Host "✅ objectId = $objectId"
+                Write-Host "tenantId = $tenantId"
+                Write-Host "objectId = $objectId"
 
-                Write-Host "🚀 Starting Bicep deployment with inline JSON parameters..."
+                $params = @{
+                  namePrefix = @{ value = "$(namePrefix)" }
+                  location   = @{ value = "$(location)" }
+                  tenantId   = @{ value = "$tenantId" }
+                  objectId   = @{ value = "$objectId" }
+                }
+
+                $paramsPath = "$(System.DefaultWorkingDirectory)\bicep-params.json"
+                $params | ConvertTo-Json -Depth 3 | Out-File -FilePath $paramsPath -Encoding utf8
+
+                Write-Host "🚀 Starting Bicep deployment using parameter file..."
                 az deployment group create `
-                  --resource-group $(resourceGroupName) `
+                  --resource-group "$(resourceGroupName)" `
                   --template-file infra/main.bicep `
-                  --parameters "{`"namePrefix`": {`"value`": `"$(namePrefix)`"}, `"location`": {`"value`": `"$(location)`"}, `"tenantId`": {`"value`": `"$tenantId`"}, `"objectId`": {`"value`": `"$objectId`"}}" `
+                  --parameters "@$paramsPath" `
                   --debug
 
   - stage: BuildAndDeployApp
