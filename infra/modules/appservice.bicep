@@ -15,7 +15,7 @@ resource plan 'Microsoft.Web/serverfarms@2022-03-01' = {
 }
 
 resource webApp 'Microsoft.Web/sites@2022-03-01' = {
-  name: 'WebAppDavDev01'
+  name: 'WebAppDavDev010101'
   location: location
   kind: 'app,linux'
   properties: {
