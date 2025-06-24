@@ -21,12 +21,17 @@ stages:
               scriptType: ps
               scriptLocation: inlineScript
               inlineScript: |
-                Write-Host "Getting tenantId..."
+                Write-Host "🔐 Getting tenantId..."
                 $tenantId = az account show --query tenantId -o tsv
                 $objectId = '8cc342d9-1d50-4a28-abd9-25ef76d9d4d4'
 
-                Write-Host "tenantId = $tenantId"
-                Write-Host "objectId = $objectId"
+                Write-Host "✅ tenantId = $tenantId"
+                Write-Host "✅ objectId = $objectId"
+
+                Write-Host "🛠️ Building Bicep to ARM JSON..."
+                $bicepPath = "$(System.DefaultWorkingDirectory)\infra\main.bicep"
+                $outputPath = "$(System.DefaultWorkingDirectory)\infra\main.json"
+                az bicep build --file $bicepPath --outFile $outputPath
 
                 $params = @{
                   namePrefix = @{ value = "$(namePrefix)" }
@@ -38,10 +43,10 @@ stages:
                 $paramsPath = "$(System.DefaultWorkingDirectory)\bicep-params.json"
                 $params | ConvertTo-Json -Depth 3 | Out-File -FilePath $paramsPath -Encoding utf8
 
-                Write-Host "🚀 Starting Bicep deployment using parameter file..."
+                Write-Host "🚀 Deploying ARM template..."
                 az deployment group create `
                   --resource-group "$(resourceGroupName)" `
-                  --template-file infra/main.bicep `
+                  --template-file $outputPath `
                   --parameters "@$paramsPath" `
                   --debug
 
