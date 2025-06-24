@@ -69,5 +69,6 @@ stages:
       inputs:
         azureSubscription: $(azureSubscription)
         appName: $(appName)
+        resourceGroupName: 'PortfolioDev'
         package: '$(Build.ArtifactStagingDirectory)/app.zip'
       displayName: 'Deploy Web App to Azure'
