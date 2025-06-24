@@ -6,7 +6,7 @@ param objectId string
 module kv 'modules/keyvault.bicep' = {
   name: 'kvDeployment'
   params: {
-    namePrefix: namePrefix
+    param namePrefix string = 'demo${uniqueString(resourceGroup().id)}
     location: location
     tenantId: tenantId
     objectId: objectId
