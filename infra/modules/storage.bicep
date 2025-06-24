@@ -2,7 +2,7 @@ param namePrefix string
 param location string
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-  name: toLower('${namePrefix}storage${uniqueString(resourceGroup().id)}')
+  name: 'myappwebapp657290'
   location: location
   sku: {
     name: 'Standard_LRS'
