@@ -2,7 +2,7 @@ param namePrefix string
 param location string
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
-  name: 'myappwebabc123'
+  name: 'appserviceplan123'
   location: location
   sku: {
     name: 'F1'
@@ -14,7 +14,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
 }
 
 resource webApp 'Microsoft.Web/sites@2022-03-01' = {
-  name: 'myapp-webapp'
+  name: 'myappwebabc123'
   location: location
   kind: 'app'
   properties: {
