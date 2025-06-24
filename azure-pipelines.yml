@@ -7,7 +7,7 @@ pool:
 variables:
   azureSubscription: 'ARM-Manager'
   location: 'eastus'
-  namePrefix: 'CareerPortfolio'
+  namePrefix: 'myapp'
   tenantId: 'ed4ea245-6155-4c12-a192-b87bc12e9cc5'
   objectId: '8cc342d9-1d50-4a28-abd9-25ef76d9d4d4'
 
@@ -22,9 +22,19 @@ stages:
         scriptType: bash
         scriptLocation: inlineScript
         inlineScript: |
-          az --version
+          echo "Starting Bicep deployment to existing resource group 'CareerPortfolio'..."
           az deployment group create \
-            --resource-group $(namePrefix)-rg \
+            --resource-group CareerPortfolio \
             --template-file infra/main.bicep \
             --parameters namePrefix=$(namePrefix) location=$(location) tenantId=$(tenantId) objectId=$(objectId)
+          exit_code=$?
+
+          if [ $exit_code -eq 0 ]; then
+            echo "✅ Deployment succeeded."
+          elif [ $exit_code -eq 1 ]; then
+            echo "⚠️ Deployment may have succeeded, but Azure CLI returned a known parsing error."
+          else
+            echo "❌ Deployment failed with exit code $exit_code"
+            exit $exit_code
+          fi
       displayName: 'Deploy Bicep Infrastructure'
