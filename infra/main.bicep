@@ -1,5 +1,5 @@
 param location string = resourceGroup().location
-param namePrefix string = 'demo20250623' // Use something unique
+param namePrefix string = 'demo030303' // Use something unique
 param tenantId string
 param objectId string
 
