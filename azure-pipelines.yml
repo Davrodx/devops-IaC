@@ -23,7 +23,6 @@ stages:
         scriptLocation: inlineScript
         inlineScript: |
           az --version
-          az group create --name CareerPortfolio --location $(location)
           az deployment group create \
             --resource-group $(namePrefix)-rg \
             --template-file infra/main.bicep \
