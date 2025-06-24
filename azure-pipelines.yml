@@ -34,7 +34,6 @@ stages:
                   --resource-group $(resourceGroupName) \
                   --template-file infra/main.bicep \
                   --parameters "{\"namePrefix\": {\"value\": \"$(namePrefix)\"}, \"location\": {\"value\": \"$(location)\"}, \"tenantId\": {\"value\": \"$tenantId\"}, \"objectId\": {\"value\": \"$objectId\"}}" \
-                  --only-show-errors \
                   --debug
 
   - stage: BuildAndDeployApp
