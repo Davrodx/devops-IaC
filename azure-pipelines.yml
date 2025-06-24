@@ -26,14 +26,19 @@ stages:
                 tenantId=$(az account show --query tenantId -o tsv)
                 echo "✅ tenantId: $tenantId"
 
+                objectId='8cc342d9-1d50-4a28-abd9-25ef76d9d4d4'     
                 echo "🔐 Using objectId (manually set or secret): $objectId"
 
                 echo "🚀 Starting Bicep deployment..."
+                if [ -z "$tenantId" ]; then
+                echo "❌ ERROR: tenantId is empty!"
+                exit 1
+                fi
                 az deployment group create \
                   --resource-group $(resourceGroupName) \
                   --template-file infra/main.bicep \
                   --parameters namePrefix=$(namePrefix) \
-                               tenantId=$(az account show --query tenantId -o tsv) \
+                               tenantId=$tenantId \
                                objectId='8cc342d9-1d50-4a28-abd9-25ef76d9d4d4'
 
   - stage: BuildAndDeployApp
