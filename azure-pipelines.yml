@@ -44,11 +44,9 @@ stages:
                 $params | ConvertTo-Json -Depth 3 | Out-File -FilePath $paramsPath -Encoding utf8
 
                 Write-Host "🚀 Deploying ARM template..."
-                az deployment group create `
-                  --resource-group "$(resourceGroupName)" `
-                  --template-file "$outputPath" `
-                  --parameters "@$paramsPath" `
-                  --debug
+                $cmd = "az deployment group create --resource-group `"$env:resourceGroupName`" --template-file `"$outputPath`" --parameters `@$paramsPath` --debug"
+                Write-Host "Executing: $cmd"
+                Invoke-Expression $cmd
 
   - stage: BuildAndDeployApp
     displayName: 'Build and Deploy Node.js App'
